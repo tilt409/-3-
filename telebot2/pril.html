@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #shop { max-width: 500px; margin: 0 auto; }
+        img { max-width: 100%; }
+        button {
+            background: #0088cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="shop">
+        <h1>Онлайн магазин</h1>
+        <img src="https://t3.ftcdn.net/jpg/07/86/26/00/360_F_786260004_rtiinJiOLjCTNwvmPWBIoyNa0pf6b8KL.jpg">
+        <p>Ваш текст</p>
+        <button id="buy">Купить</button>
+    </div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        document.getElementById('buy').addEventListener('click', () => {
+            Telegram.WebApp.sendData('purchase_started');
+        });
+    </script>
+</body>
+</html>

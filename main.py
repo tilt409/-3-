@@ -10,6 +10,12 @@ class App:
         self.model = ProductModel()
         self.model.load_from_file("data.txt")
 
+        # Создаём GUI элементы
+        self._create_widgets()
+        self.refresh_table()
+
+    def _create_widgets(self):
+        """Создаёт все виджеты (вынесено для тестирования)"""
         # Таблица
         self.tree = ttk.Treeview(self.root, columns=("1", "2", "3"), show="headings")
         self.tree.heading("1", text="Дата")
@@ -29,8 +35,6 @@ class App:
         tk.Button(self.root, text="Добавить", command=self.add).pack()
         tk.Button(self.root, text="Удалить", command=self.delete).pack()
 
-        self.refresh_table()
-
     def refresh_table(self):
         """Обновляет таблицу"""
         for i in self.tree.get_children():
@@ -38,29 +42,44 @@ class App:
         for obj in self.model.get_all_items():
             self.tree.insert("", "end", values=(obj['date'], obj['product_name'], obj['quantity']))
 
+    def _clear_inputs(self):
+        """Очищает поля ввода"""
+        self.e1.delete(0, tk.END)
+        self.e2.delete(0, tk.END)
+        self.e3.delete(0, tk.END)
+
+    def get_input_values(self):
+        """Возвращает значения из полей ввода"""
+        return {
+            'date': self.e1.get(),
+            'product_name': self.e2.get(),
+            'quantity': self.e3.get()
+        }
+
     def add(self):
         """Добавляет новый элемент"""
-        raw = f'"{self.e2.get()}" {self.e1.get()} {self.e3.get()}'
-        success = self.model.add_from_line(raw)
+        values = self.get_input_values()
+        success = self.model.add_from_dict(
+            values['date'],
+            values['product_name'],
+            values['quantity']
+        )
 
         if success:
             self.model.save_to_file("data.txt")
             self.refresh_table()
-            # Очищаем поля
-            self.e1.delete(0, tk.END)
-            self.e2.delete(0, tk.END)
-            self.e3.delete(0, tk.END)
+            self._clear_inputs()
         else:
-            messagebox.showerror("Ошибка", "Не удалось добавить запись. Проверьте лог в консоли.")
+            messagebox.showerror("Ошибка", f"Не удалось добавить запись: {self.model.get_last_error()}")
 
     def delete(self):
         """Удаляет выделенный элемент"""
         sel = self.tree.selection()
         if sel:
             idx = self.tree.index(sel[0])
-            self.model.delete_item(idx)
-            self.model.save_to_file("data.txt")
-            self.refresh_table()
+            if self.model.delete_item(idx):
+                self.model.save_to_file("data.txt")
+                self.refresh_table()
 
 
 if __name__ == "__main__":
